@@ -1,0 +1,9 @@
+# compilation and distribution
+__pycache__
+*.pyc
+
+# Editor temporaries
+*.swn
+*.swo
+*.swp
+*~
