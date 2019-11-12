@@ -143,10 +143,10 @@ def extractVOCSomeClass(src_data_dir, dst_data_dir, classes, list_files):
 if __name__ == '__main__':
 
     # input data_dir and data list, copy to JPEGImages and Annotations of dst_data_dir
-    src_data_dir = '/workspace/D2/sanjun/VOCdevkit/VOC2012'
-    dst_data_dir = '/workspace/D2/sanjun/ExtractedVOCClasses/person'
+    src_data_dir = '/workspace/D2/VOCdevkit/VOC2012'
+    dst_data_dir = '/workspace/D2/ExtractedVOCClasses/person'
 
-    list_files = '/workspace/D2/sanjun/VOCdevkit/VOC2012/ImageSets/Main/person_trainval.txt'
+    list_files = '/workspace/D2/VOCdevkit/VOC2012/ImageSets/Main/person_trainval.txt'
 
     CLASSES = ['person']
 
