@@ -23,15 +23,16 @@ import json
 # person_keypoints_val2017.json  # Object Keypoint label info
 # captions_val2017.json  # Image Caption label info
 
-json_file='/workspace/D2/sanjun/rawfood_coco_all/annotations_0-19_new2/405_instances_train2018.json' # Object Instance label info
+#json_file='/workspace/D2/sanjun/rawfood_coco_all/annotations_0-19_new2/405_instances_train2018.json' # Object Instance label info
+json_file='/datasets/coco/annotations/densepose_coco_2014_minival.json'
 #json_file='/workspace/D2/sanjun/coco/annotations/instances_train2017.json'
 new_json_file = 'new_instance.json'
 
 data=json.load(open(json_file,'r'))
 
 data_2={}
-data_2['info']=data['info']
-data_2['licenses']=data['licenses']
+#data_2['info']=data['info']
+#data_2['licenses']=data['licenses']
 data_2['images']=[data['images'][0]] # just get the first image
 print("image num:", len(data['images']))
 data_2['categories']=data['categories']
