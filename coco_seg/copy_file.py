@@ -30,11 +30,11 @@ def copy_files(in_root_dir, out_image_dir, out_json_dir):
     file_num = 0
     for root_dir, sub_dirs, files in os.walk(in_root_dir):
         for each_file in files:
-            if each_file.split('.')[-1] in ['json', 'jpg']:
+            if each_file.split('.')[-1] in ['json', 'jpg', 'bmp']:
                 file_path = os.path.join(root_dir, each_file)
-                if each_file.split('.')[-1] == 'json':
+                if each_file.split('.')[-1] in ['json']:
                     out_dir = out_json_dir
-                elif each_file.split('.')[-1] == 'jpg':
+                elif each_file.split('.')[-1] in ['jpg', 'bmp']:
                     out_dir = out_image_dir
                     file_num += 1
                 shutil.copy(file_path, out_dir)
