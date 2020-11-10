@@ -2,10 +2,12 @@ import os
 import argparse
 import json
 
-from labelme import utils
 import numpy as np
 import glob
+import PIL
 import PIL.Image
+
+from labelme import utils
 
 
 class labelme2coco(object):
@@ -48,8 +50,10 @@ class labelme2coco(object):
 
     def get_image(self, data, num):
         image = {}
-        img = utils.img_b64_to_arr(data["imageData"])
-        height, width = img.shape[:2]
+        #if data["imageData"] is not None:
+        #    img = utils.img_b64_to_arr(data["imageData"])
+        #    height, width = img.shape[:2]
+        height, width = data["imageHeight"], data["imageWidth"]
         img = None
         image["height"] = height
         image["width"] = width
