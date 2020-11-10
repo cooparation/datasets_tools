@@ -3,6 +3,7 @@
 Do some polygons based augmentation with imgaug tool
 '''
 import os
+import sys
 import numpy as np
 import imgaug as ia
 import imgaug.augmenters as iaa
@@ -53,7 +54,7 @@ def Save_LabelMe_ImageAndAnno(json_dict, image_aug, polygon_aug, image_path_new,
                 #print("================= ", point)
                 shapes_dict["points"].append([float(point[0]), float(point[1])])
         annotations["shapes"].append(shapes_dict)
-    print(annotations)
+    #print(annotations)
 
     ### save json and image ###
     result_json = json.dump(annotations,
@@ -73,6 +74,7 @@ class Aug_Polygons():
         self.images_name = []
         self.images_format = []
         self.polygons = []
+        self.json_dicts = []
         if self.anno_type == 'labelme':
             assert(len(images_path) == len(annos_path)), '{} not the same {}'.format(len(images_path), len(annos_path))
             ## read polygons points from labelme json
@@ -92,11 +94,12 @@ class Aug_Polygons():
 
                 anno_path = annos_path[i]
                 with open(anno_path, "r") as f:
-                    self.json_dict = json.load(f)
+                    json_dict = json.load(f)
+                self.json_dicts.append(json_dict)
                 polygon = [] ## polygon with one picture
-                for i in range(len(self.json_dict["shapes"])):
+                for j in range(len(json_dict["shapes"])):
                     keypoints = []
-                    for kp_list in self.json_dict["shapes"][i]["points"]:
+                    for kp_list in json_dict["shapes"][j]["points"]:
                         keypoints.append((kp_list[0], kp_list[1]))
                     polygon.append(ia.Polygon(keypoints))
                     #print('keypoints', keypoints)
@@ -138,6 +141,14 @@ class Aug_Polygons():
     def do_augmentation(self, augmenter_seq):
         ### do augmentations ###
         self.images_aug, self.polygons_aug = augmenter_seq(images=self.images, polygons=self.polygons)
+
+        ### if the shapes change,then update it
+        for i in range(len(self.images_aug)):
+            (image_h, image_w, image_c) = self.images_aug[i].shape
+            if self.json_dicts[i]["imageHeight"] != image_h:
+                self.json_dicts[i]["imageHeight"] = image_h
+            if self.json_dicts[i]["imageWidth"] != image_w:
+                self.json_dicts[i]["imageWidth"] = image_w
         print('polygons_aug', self.polygons_aug)
 
     ### save images and write labelme annotations ###
@@ -153,7 +164,7 @@ class Aug_Polygons():
             image_path_new = os.path.join(save_images_dir, new_image_name + '.'+self.images_format[i])
             anno_file_new = os.path.join(save_annos_dir, new_image_name + '.json')
             if self.anno_type == 'labelme':
-                Save_LabelMe_ImageAndAnno(self.json_dict, self.images_aug[i], self.polygons_aug[i], image_path_new, anno_file_new)
+                Save_LabelMe_ImageAndAnno(self.json_dicts[i], self.images_aug[i], self.polygons_aug[i], image_path_new, anno_file_new)
 
     ### show results ###
     def vis_results(self, vis_dir = 'vis_dir'):
@@ -224,29 +235,33 @@ color_seq = iaa.SomeOf(2, [
     aug_brightness,
     aug_colorTemperature,
     #aug_hueSaturation[0],
-    aug_hueSaturation[1],
+    #aug_hueSaturation[1],
     #aug_hueSaturation[2],
-    aug_hueSaturation[3]
+    #aug_hueSaturation[3]
 ], random_order=True)
 
-seq = iaa.SomeOf(2, [
-    ## 0.5 is the probability, horizontally flip 50% of the images
-    #iaa.Fliplr(0.5),
-    #iaa.Flipud(0.5),
-    ## crop images from each side by 0 to 16px(randomly chosen)
-    #iaa.Crop(percent=(0, 0.1)),
-    #iaa.LinearContrast((0.75, 1.5)),
-    #iaa.Multiply((0.8, 1.2), per_channel=0.2),
-    #iaa.AdditiveGaussianNoise(scale=0.05*255),
-    ## blur images with a sigma of 0 to 3.0
-    #iaa.GaussianBlur(sigma=(0, 3.0)),
-    iaa.Affine(translate_px={"x": (1, 5)}),
-    iaa.Affine(
-        scale={"x": (0.8, 1.2), "y": (0.8, 1.2)},
-        translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},
-        rotate=(-25, 25),
-        shear=(-8, 8)
-    )
+seq = iaa.Sequential([
+      #iaa.Affine(rotate=(-90, 90)),
+      iaa.Rot90(1, keep_size=False),
+      iaa.SomeOf(1, [
+        ## 0.5 is the probability, horizontally flip 50% of the images
+        #iaa.Fliplr(0.5),
+        #iaa.Flipud(0.5),
+        ## crop images from each side by 0 to 16px(randomly chosen)
+        #iaa.Crop(percent=(0, 0.1)),
+        #iaa.LinearContrast((0.75, 1.5)),
+        #iaa.Multiply((0.8, 1.2), per_channel=0.2),
+        #iaa.AdditiveGaussianNoise(scale=0.05*255),
+        ## blur images with a sigma of 0 to 3.0
+        #iaa.GaussianBlur(sigma=(0, 3.0)),
+        iaa.Affine(translate_px={"x": (1, 5)}),
+        iaa.Affine(
+            scale={"x": (0.8, 1.2), "y": (0.8, 1.2)},
+            translate_percent={"x": (-0.1, 0.1), "y": (-0.1, 0.1)},
+            rotate=(-7, 7),
+            shear=(-8, 8)
+        )
+      ]),
 ], random_order=True)
 
 if __name__ == '__main__':
@@ -263,10 +278,30 @@ if __name__ == '__main__':
     annos_path = ['images/2020_04_02_13_59_46_640.json',
                    'images/2020_04_02_13_59_46_640_test.json'
                  ]
+    img_format = 'bmp'
+    if len(sys.argv) == 2:
+        root_path = sys.argv[1]
+        #in_images = glob.glob(os.path.join(root_path, 'images', '**/*.jpg'), recursive=True)
+        in_images = glob.glob(os.path.join(root_path, 'images', '**/*.'+img_format), recursive=True)
+        in_annos = glob.glob(os.path.join(root_path, 'annotations', '**/*.json'), recursive=True)
+    else:
+        print("Usage: {} [input_root_path]".format(sys.argv[0]))
 
-    aug_handle = Aug_Polygons()
-    aug_handle.read_images_annos(images_path, annos_path)
-    aug_handle.color_change(color_seq, isSeg=True)
-    aug_handle.do_augmentation(seq)
-    aug_handle.save_images_annos(save_dir='results')
-    aug_handle.vis_results(vis_dir='vis_dir')
+    total_num,file_num = len(in_images), 0
+    for i in range(total_num):
+        anno_file = in_images[i].replace('images', 'annotations')
+        anno_file = anno_file.replace(img_format, 'json')
+        if not os.path.exists(anno_file):
+            print('======= Warning:{} not exists'.format(anno_file))
+            continue
+        file_num += 1
+        print('---- processing {} / {}'.format(file_num, total_num), end = "",flush=True)
+        images_path = [in_images[i]]
+        annos_path = [anno_file]
+
+        aug_handle = Aug_Polygons()
+        aug_handle.read_images_annos(images_path, annos_path)
+        aug_handle.color_change(color_seq, isSeg=True)
+        aug_handle.do_augmentation(seq)
+        aug_handle.save_images_annos(save_dir='results')
+        aug_handle.vis_results(vis_dir='vis_dir')
