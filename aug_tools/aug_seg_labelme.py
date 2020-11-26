@@ -108,6 +108,39 @@ class Aug_Polygons():
             print('{} is not supported'.format(self.anno_type))
             sys.exit(-1)
 
+    ## extract the objects of the pointed mask areas
+    def extract_objects(self, augmenter_seq, isCropMask=True, save_dir='crop_results'):
+        num_image_patchs = 0
+        image_patchs = []
+        for i in range(len(self.images)):
+            (image_h, image_w, image_c) = self.images[i].shape
+
+            ### one image shapes ###
+            for polygon in self.polygons[i]:
+                poly_points = []
+                #print('====== polygon', polygon)
+                for point in polygon.exterior:
+                    poly_points.append([point[0], point[1]])
+                poly_points = np.array([poly_points], 'int32')
+                rect = cv2.boundingRect(poly_points) # returns (x,y,w,h)
+                if isCropMask:
+                    image_crop_mask = np.zeros((image_h, image_w), np.uint8)
+                    cv2.fillPoly(image_crop_mask, poly_points, (255))
+                    res = cv2.bitwise_and(self.images[i],self.images[i], mask = image_crop_mask)
+                    cropped = res[rect[1]: rect[1] + rect[3], rect[0]: rect[0] + rect[2]]
+                else:
+                    cropped = self.images[i][rect[1]: rect[1] + rect[3], rect[0]: rect[0] + rect[2]]
+                crop_image_name = 'crop_' + self.images_name[i] + \
+                               str(num_image_patchs) + '.' + self.images_format[i]
+                save_image_name = os.path.join(save_dir, crop_image_name)
+                cv2.imwrite(save_image_name, cropped)
+                image_patchs.append(cropped)
+
+        #images_pos_aug = augmenter_seq(images=images_pos_tmp)
+        for i in range(num_image_patchs):
+            self.images[i] = image_patchs[i]
+            #cv2.imwrite("img_color_aug.jpg", self.images[i])
+
     ## change the color for the pointed mask areas
     def color_change(self, augmenter_seq, isSeg=True):
         images_pos_tmp = []
@@ -152,9 +185,9 @@ class Aug_Polygons():
         print('polygons_aug', self.polygons_aug)
 
     ### save images and write labelme annotations ###
-    def save_images_annos(self, save_dir = 'results'):
+    def save_images_annos(self, save_dir = 'results', aug_times=0):
         for i in range(len(self.images)):
-            new_image_name = self.images_name[i] + '_aug'
+            new_image_name = self.images_name[i] + '_aug_' + str(aug_times)
             save_images_dir = os.path.join(save_dir, 'images')
             save_annos_dir = os.path.join(save_dir, 'annotations')
             if not os.path.exists(save_images_dir):
@@ -242,11 +275,11 @@ color_seq = iaa.SomeOf(2, [
 
 seq = iaa.Sequential([
       #iaa.Affine(rotate=(-90, 90)),
-      iaa.Rot90(1, keep_size=False),
+      #iaa.Rot90(1, keep_size=False),
       iaa.SomeOf(1, [
         ## 0.5 is the probability, horizontally flip 50% of the images
-        #iaa.Fliplr(0.5),
-        #iaa.Flipud(0.5),
+        iaa.Fliplr(0.5),
+        iaa.Flipud(0.5),
         ## crop images from each side by 0 to 16px(randomly chosen)
         #iaa.Crop(percent=(0, 0.1)),
         #iaa.LinearContrast((0.75, 1.5)),
@@ -279,6 +312,7 @@ if __name__ == '__main__':
                    'images/2020_04_02_13_59_46_640_test.json'
                  ]
     img_format = 'bmp'
+    #img_format = 'jpg'
     if len(sys.argv) == 2:
         root_path = sys.argv[1]
         #in_images = glob.glob(os.path.join(root_path, 'images', '**/*.jpg'), recursive=True)
@@ -303,5 +337,7 @@ if __name__ == '__main__':
         aug_handle.read_images_annos(images_path, annos_path)
         aug_handle.color_change(color_seq, isSeg=True)
         aug_handle.do_augmentation(seq)
-        aug_handle.save_images_annos(save_dir='results')
+        aug_handle.save_images_annos(save_dir='results', aug_times=0)
         aug_handle.vis_results(vis_dir='vis_dir')
+
+        #aug_handle.extract_objects(color_seq, isCropMask=False)
