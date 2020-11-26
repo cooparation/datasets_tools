@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#-*- coding: utf-8 -*-
 '''
 Convert coco json to labelme json
 '''
@@ -75,6 +75,7 @@ def labelme_shapes(data, data_ref):
                     shape['points'].append([x[j], y[j]])
 
                 shape['shape_type'] =  data_ref['shapes'][0]['shape_type']
+                shape['group_id'] =  data_ref['shapes'][0]['group_id']
                 shape['flags'] = data_ref['shapes'][0]['flags']
                 shapes.append(shape)
     return shapes
@@ -111,22 +112,30 @@ if __name__ == '__main__':
     save_extracted_dir = 'coco_extracted/annotations'
     if not os.path.exists(save_extracted_dir):
         os.makedirs(save_extracted_dir)
-    for root_dir, sub_dir, file_names in os.walk(coco_jsons_dir):
+    for root_dir, _, file_names in os.walk(coco_jsons_dir):
         for json_file in file_names:
             if json_file.split('.')[-1] == 'json':
                 json_path = os.path.join(root_dir, json_file)
-                print('load：', json_path)
-                ExtractEachCocoAnnos(json_path, save_extracted_dir)
+                print('load: ', json_path)
+                sub_dir = json_path.split('/')[-2] ## Get the sub dir
+                save_dir = os.path.join(save_extracted_dir, sub_dir)
+                if not os.path.exists(save_dir):
+                    os.makedirs(save_dir)
+                ExtractEachCocoAnnos(json_path, save_dir)
 
     data_ref = reference_labelme_json()
     ### 2. convert coco json to labelme json ###
     save_labelme_dir = './labelmeType_dir/annotations'
     if not os.path.exists(save_labelme_dir):
         os.makedirs(save_labelme_dir)
-    for root_dir, sub_dir, file_names in os.walk(save_extracted_dir):
+    for root_dir, _, file_names in os.walk(save_extracted_dir):
         for json_file in file_names:
             if json_file.split('.')[-1] == 'json':
                 json_path = os.path.join(root_dir, json_file)
-                print('load：', json_path)
-                Coco2labelme(json_path, save_labelme_dir, data_ref)
+                print('load: ', json_path)
+                sub_dir = json_path.split('/')[-2] ## Get the sub dir
+                save_dir = os.path.join(save_labelme_dir, sub_dir)
+                if not os.path.exists(save_dir):
+                    os.makedirs(save_dir)
+                Coco2labelme(json_path, save_dir, data_ref)
     print(label_num_dict)
