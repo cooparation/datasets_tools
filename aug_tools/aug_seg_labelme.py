@@ -264,7 +264,7 @@ seq = iaa.Sequential([
 ])
 
 # Pick two of four given augmenters and apply them in random order
-color_seq = iaa.SomeOf(2, [
+color_seq = iaa.SomeOf(1, [
     aug_brightness,
     aug_colorTemperature,
     #aug_hueSaturation[0],
@@ -322,6 +322,7 @@ if __name__ == '__main__':
         print("Usage: {} [input_root_path]".format(sys.argv[0]))
 
     total_num,file_num = len(in_images), 0
+    total_aug_times = 5
     for i in range(total_num):
         anno_file = in_images[i].replace('images', 'annotations')
         anno_file = anno_file.replace(img_format, 'json')
@@ -330,14 +331,15 @@ if __name__ == '__main__':
             continue
         file_num += 1
         print('---- processing {} / {}'.format(file_num, total_num), end = "",flush=True)
-        images_path = [in_images[i]]
-        annos_path = [anno_file]
+        for aug_times in range(total_aug_times):
+            images_path = [in_images[i]]
+            annos_path = [anno_file]
 
-        aug_handle = Aug_Polygons()
-        aug_handle.read_images_annos(images_path, annos_path)
-        aug_handle.color_change(color_seq, isSeg=True)
-        aug_handle.do_augmentation(seq)
-        aug_handle.save_images_annos(save_dir='results', aug_times=0)
-        aug_handle.vis_results(vis_dir='vis_dir')
+            aug_handle = Aug_Polygons()
+            aug_handle.read_images_annos(images_path, annos_path)
+            aug_handle.color_change(color_seq, isSeg=True)
+            aug_handle.do_augmentation(seq)
+            aug_handle.save_images_annos(save_dir='results', aug_times=aug_times)
+            aug_handle.vis_results(vis_dir='vis_dir')
 
-        #aug_handle.extract_objects(color_seq, isCropMask=False)
+            #aug_handle.extract_objects(color_seq, isCropMask=False)
