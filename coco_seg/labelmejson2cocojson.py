@@ -99,7 +99,16 @@ def main():
         )
         img = np.asarray(PIL.Image.open(img_file))
         PIL.Image.fromarray(img).save(out_img_file)
-        data['images'].append(dict(
+        #data['images'].append(dict(
+        #    license=0,
+        #    url=None,
+        #    file_name=osp.relpath(out_img_file, osp.dirname(out_ann_file)),
+        #    height=img.shape[0],
+        #    width=img.shape[1],
+        #    date_captured=None,
+        #    id=image_id,
+        #))
+        data['images'] = [dict(
             license=0,
             url=None,
             file_name=osp.relpath(out_img_file, osp.dirname(out_ann_file)),
@@ -107,7 +116,7 @@ def main():
             width=img.shape[1],
             date_captured=None,
             id=image_id,
-        ))
+        )]
 
         masks = {}                                     # for area
         segmentations = collections.defaultdict(list)  # for segmentation
@@ -138,7 +147,16 @@ def main():
             area = float(pycocotools.mask.area(mask))
             bbox = pycocotools.mask.toBbox(mask).flatten().tolist()
 
-            data['annotations'].append(dict(
+            #data['annotations'].append(dict(
+            #    id=len(data['annotations']),
+            #    image_id=image_id,
+            #    category_id=cls_id,
+            #    segmentation=segmentations[label],
+            #    area=area,
+            #    bbox=bbox,
+            #    iscrowd=0,
+            #))
+            data['annotations'] = [dict(
                 id=len(data['annotations']),
                 image_id=image_id,
                 category_id=cls_id,
@@ -146,7 +164,7 @@ def main():
                 area=area,
                 bbox=bbox,
                 iscrowd=0,
-            ))
+            )]
 
         with open(out_ann_file, 'w') as f:
             json.dump(data, f)
@@ -160,4 +178,4 @@ if __name__ == '__main__':
 # @output data_dataset_coco directory structure:
 #    --- images:[image1.jpg, image2,jpg, ...]
 #    --- annotations:[image1.json, image2.json, ...]
-# ./labelme2coco.py data_annotated data_dataset_coco
+# ./labelmejson2cocojson.py data_annotated data_dataset_coco
