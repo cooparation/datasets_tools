@@ -22,7 +22,7 @@ def main():
     )
     parser.add_argument('input_dir', help='input annotated directory')
     parser.add_argument('output_dir', help='output dataset directory')
-    parser.add_argument('--labels', help='labels file', required=True)
+    parser.add_argument('--labels', help='labels file, note start with background', required=True)
     args = parser.parse_args()
 
 
@@ -43,8 +43,9 @@ def main():
     class_names = []
     class_name_to_id = {}
     for i, line in enumerate(open(args.labels).readlines()):
-        print(i)
-        class_id = i+1 # starts with -1
+        print(i, line)
+        #### Notes
+        class_id = i # starts with 0, background
         class_name = line.strip()
         class_name_to_id[class_name] = class_id
         if class_id == -1:
@@ -53,6 +54,7 @@ def main():
         elif class_id == 0:
             assert class_name == '_background_'
         class_names.append(class_name)
+    print('class_name_to_id:',class_name_to_id)
     class_names = tuple(class_names)
     print('class_names:', class_names)
     out_class_names_file = osp.join(args.output_dir, 'class_names.txt')
@@ -95,7 +97,6 @@ def main():
             continue
 
 
-        print('class_name_to_id:',class_name_to_id)
         lbl = labelmeutils.shapes_to_label(
             img_shape=img.shape,
             shapes=data['shapes'],
@@ -124,13 +125,13 @@ def main():
     #for file in os.listdir(test_filepath):
     #    ftest.write(file.split(".jpg")[0] + "\n")
     #split
-    train_files,val_files = train_test_split(total_files,test_size=0.15,random_state=42)
+    #train_files,val_files = train_test_split(total_files,test_size=0.15,random_state=42)
     ##train
-    for file in train_files:
-        ftrain.write(file + "\n")
-    #val
-    for file in val_files:
-        fval.write(file + "\n")
+    #for file in train_files:
+    #    ftrain.write(file + "\n")
+    ##val
+    #for file in val_files:
+    #    fval.write(file + "\n")
 
     ftrainval.close()
     ftrain.close()

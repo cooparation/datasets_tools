@@ -29,7 +29,8 @@ def download_file_from_google_drive(id, destination):
                         f.write(chunk)
                         bar.update(CHUNK_SIZE)
 
-    URL = "https://docs.google.com/uc?export=download"
+    #URL = "https://docs.google.com/uc?export=download"
+    URL= "https://drive.google.com/u/0/uc?export=download"
 
     session = requests.Session()
 
@@ -48,8 +49,7 @@ if __name__ == "__main__":
     import sys
     if len(sys.argv) is not 3:
         print("Usage: python google_drive.py drive_file_id destination_file_path")
-        print("For example:If the download link looks like below, the GoogleFileID is 0Bz7KyqmuGsilT0J5dmRCM0ROVHc https://drive.google.com/uc?export=download&confirm=1o_3&id=0Bz7KyqmuGsilT0J5dmRCM0ROVHc
-\n If the path for this file to download is /home/ubuntu/myfile/file.zip then the command you should run is \n python download_gdrive.py 0Bz7KyqmuGsilT0J5dmRCM0ROVHc /home/ubuntu/myfile/file.zip")
+        print("For example:If the download link looks like below, the GoogleFileID is 0Bz7KyqmuGsilT0J5dmRCM0ROVHc https://drive.google.com/uc?export=download&confirm=1o_3&id=0Bz7KyqmuGsilT0J5dmRCM0ROVHc \n If the path for this file to download is /home/ubuntu/myfile/file.zip then the command you should run is \n python download_gdrive.py 0Bz7KyqmuGsilT0J5dmRCM0ROVHc /home/ubuntu/myfile/file.zip")
         print("\n Details ot see: https://github.com/chentinghao/download_google_drive")
     else:
         # TAKE ID FROM SHAREABLE LINK
