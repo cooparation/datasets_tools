@@ -1,0 +1,7 @@
+# YunPan shared link
+Shared_Link=https://pan.baidu.com/s/1GGKrUE_dfy4KFV6LHsa8BQ
+# YunPan filename
+Filename=shoes_classes.zip
+# YunPan download link address
+Download_Link="https://bjbgp01.baidupcs.com/file/9b062842ai1dd794f3d2337e651ea77d?bkt=en-6f7dc9883530f8c9f05625fb3eb3a309cf3c8eee232368039c2c74875170e033d9263251dc87aea3376b45bbfc40de4ccfb0104cefc4c67c27afaadfab1b42fb&fid=1640070962-250528-1029713459575896&time=1593765404&sign=FDTAXUGERLQlBHSKfW-DCb740ccc5511e5e8fedcff06b081203-SO03%2F1cb%2BXvwUZQsWgpcSHqv%2BZY%3D&to=75&size=709&sta_dx=709&sta_cs=1&sta_ft=aa&sta_ct=0&sta_mt=0&fm2=MH%2CXian%2CAnywhere%2C%2Chenan%2Cce&ctime=1593764839&mtime=1593765365&resv0=-1&resv1=0&resv2=rlim&resv3=5&resv4=709&vuk=1640070962&iv=0&htype=&randtype=&newver=1&newfm=1&secfm=1&flow_ver=3&pkey=en-51e86f4aefc24f6ec2d91d50ed78d561ee993c80d594c4448eb87bd71f5706902723c4f805051538f7185874a233d6f19cd829a1a3f08bc4305a5e1275657320&sl=68616270&expires=8h&rt=sh&r=960854333&vbdid=2089771440&fin=CAJViewerq.aa&fn=CAJViewerq.aa&rtype=1&dp-logid=4283532829556283660&dp-callid=0.1&hps=1&tsl=200&csl=200&fsl=-1&csign=xddJc9M2dY%2B%2FjbgCJErrFuXtRJ0%3D&so=0&ut=6&uter=4&serv=0&uc=3747966528&ti=16c8192e22ea32f5aae8b801ec12d0d73800ffe756740362&hflag=30&adg=c_e3257d774e5f2af9024f43f071ebb67b&reqlabel=250528_f_daade4141a5e498afde3e70a8773af27_-1_5cdd0b18babf2acfdb54de37db71443e&by=themis"
+wget -c --referer=${Shared_Link} -O ${Filename} ${Download_Link}
